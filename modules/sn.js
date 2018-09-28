@@ -17,6 +17,10 @@ let extend = function(){
 let sn = function(){
 
 }
+sn.prototype.describe = {
+  "post": "POST function(url, params)",
+  "get": "GET function(url)",
+}
 sn.prototype.post = function(url, params){
   if(typeof params === "undefined"){
     throw new Error("params are required");

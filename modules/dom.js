@@ -35,6 +35,9 @@ if(HTMLFormElement.prototype.hasOwnProperty("serialize") === false){
 if(HTMLFormControlsCollection.prototype.hasOwnProperty("forEach") === false){
   HTMLFormControlsCollection.prototype.forEach = Array.prototype.forEach;
 }
+if(NodeList.prototype.hasOwnProperty("forEach") === false){
+  NodeList.prototype.forEach = Array.prototype.forEach;
+}
 if(HTMLCollection.prototype.hasOwnProperty("forEach") === false){
   HTMLCollection.prototype.forEach = Array.prototype.forEach;
 }
@@ -74,6 +77,20 @@ extend(Node).with({
     return ce;
   }
 });
+extend(NodeList, HTMLCollection).with({
+  delegate: function(type, arg){
+    this.forEach((node)=>{
+      console.log(arg);
+      node[type].apply(node, arg);
+    })
+  },
+  on: function(){
+    this.delegate("on", arguments);
+  },
+  do: function(eventType){
+    this.delegate("do", arguments);
+  }
+})
 
 document.on("click", function(event){
   console.log(this);
