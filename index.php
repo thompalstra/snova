@@ -9,13 +9,14 @@ if($_POST){
   <head>
     <meta charset="utf-8">
     <title></title>
+    <link href="./bundle.css" rel="stylesheet"/>
     <script src="./bundle.js" type="module"></script>
   </head>
-  <body>
+  <body data-loading="true">
     <ul>
       <li>item</li>
       <li>item</li>
-      <li>item
+      <li class="has-children">item
         <ul>
           <li>item</li>
           <li>item</li>
@@ -29,7 +30,7 @@ if($_POST){
       </li>
       <li>item</li>
       <li>item</li>
-      <li>item
+      <li class="has-children">item
         <ul>
           <li>item</li>
           <li>item</li>
@@ -42,7 +43,7 @@ if($_POST){
         </ul>
       </li>
       <li>item</li>
-      <li>item
+      <li class="has-children">item
         <ul>
           <li>item</li>
           <li>item</li>
@@ -82,8 +83,19 @@ if($_POST){
     </form>
   </body>
   <script>
-    document.addEventListener("DOMContentLoaded", ()=>{
-
+    document.addEventListener("app.ready", ()=>{
+      sn.templates.load([
+        "./html/templates/category/grid.html",
+        "./html/templates/category/list.html",
+        "./html/templates/product/grid.html",
+        "./html/templates/product/list.html"
+      ]).then(()=>{
+        document.on("click", "li", function(event){
+          console.log(this.siblings(".has-children"));
+          console.log(this.parents(".has-children"));
+        })
+        document.body.dataset.loading = false;
+      });
     });
   </script>
 </html>
