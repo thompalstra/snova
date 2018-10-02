@@ -1,0 +1,32 @@
+<a href="" data-navigate-back>back</a>
+<ul class="category-view product-list"></ul>
+<script>
+  this.getNode().on("template.loading", function(event){
+    event.preventDefault();
+    let prodList = this.getNode().one(".category-view.product-list");
+    let node = this.getNode();
+    let params = this.getObject();
+    return new Promise((res, rej)=>{
+      fetch("/products.json")
+        .then(res => res.json())
+        .then((json)=>{
+          json.forEach((product, i)=>{
+            if(product.categoryId == params.id){
+              let params = product;
+              params.productJson = JSON.stringify(product);
+              var tmpl = sn.templates.render(
+                prodList.appendChild(document.createElement("li")),
+                "./html/templates/product/list.html",
+                params,
+              );
+            }
+          });
+          let ce = node.do("template.loaded", {
+            cancelable: true,
+            bubbles: false,
+            detail: {}
+          });
+        })
+    });
+  }.bind(this))
+</script>

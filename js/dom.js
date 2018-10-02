@@ -26,10 +26,13 @@ if(Object.hasOwnProperty("serialize") === false){
   }
 }
 if(HTMLFormElement.prototype.hasOwnProperty("serialize") === false){
-  HTMLFormElement.prototype.serialize = function(){
+  HTMLFormElement.prototype.serialize = function(object){
     let output = [];
     for(let pair of (new FormData(this)).entries()){
       output.push(encodeURIComponent(pair[0])+"="+encodeURIComponent(pair[1]))
+    }
+    if(typeof object !== "undefined"){
+      output.push(Object.serialize(object));
     }
     return output.join("&");
   }
@@ -91,11 +94,13 @@ extend(Node).with({
       }
     })
   },
-  do: function(eventType, options){
-    if(typeof options === "undefined"){
-      options = {cancelable: true,bubbles: true};
-    } else if(typeof options === "boolean"){
-      options = {cancelable: options,bubbles: options};
+  do: function(eventType, options ){
+    if(typeof options == "undefined"){
+      options = {
+        cancelable: true,
+        bubbles: false,
+        detail: {}
+      };
     }
     let ce = new CustomEvent(eventType, options);
     this.dispatchEvent(ce);
@@ -128,5 +133,9 @@ extend(NodeList, HTMLCollection).with({
   do: function(eventType){ this.delegate("do", arguments); }
 })
 document.addEventListener("DOMContentLoaded", function(event){
-  document.do("app.ready");
+  document.do("app.ready", {
+    cancelable: false,
+    bubbles: false,
+    detail: {}
+  });
 })

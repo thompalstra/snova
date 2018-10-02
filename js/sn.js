@@ -46,6 +46,9 @@ extend(Templates).with({
     this.getMap().remove(uri);
   },
   render: function(node, uri, object){
+    if(typeof object === "undefined"){
+      object = {};
+    }
     let content = this.getMap().get(uri);
     return new Template()
       .setNode(node)
@@ -85,14 +88,34 @@ extend(Template).with({
     return this.data.object;
   },
   render: function(){
-    let fobject = Object.flatten(this.getObject());
-    let content = this.getContent();
-    Object.keys(fobject).forEach((key)=>{
-      let regExp = new RegExp("{{" + key + "}}", "g");
-      content = content.replace(regExp, fobject[key]);
-    })
-    this.getNode().innerHTML = content;
-    return this;
+    return new Promise((res, rej)=>{
+      let fobject = Object.flatten(this.getObject());
+      let content = this.getContent();
+
+      let node = this.getNode();
+
+      Object.keys(fobject).forEach((key)=>{
+        let regExp = new RegExp("{{" + key + "}}", "g");
+        content = content.replace(regExp, fobject[key]);
+      });
+
+      node.innerHTML = content;
+      node.querySelectorAll("script").forEach((script)=>{
+        eval(script.innerHTML);
+      });
+      let ce = this.getNode().do("template.loading", {
+        cancelable: true,
+        bubbles: false,
+        detail: {}
+      });
+      if(ce.defaultPrevented){
+        node.on("template.loaded", (e)=>{
+          res(this);
+        });
+      } else {
+        res(this);
+      }
+    });
   },
   update: function(object){
     this.setObject(object);

@@ -1,0 +1,25 @@
+<a href="" data-navigate-back>back</a>
+<ul class="category-index category-list"></ul>
+<script>
+  this.getNode().on("template.loading", function(event){
+    event.preventDefault();
+    let node = this.getNode();
+    var catList = this.getNode().one(".category-index.category-list");
+    fetch("/categories.json")
+      .then(res => res.json())
+      .then(json => {
+        json.forEach((category, i)=>{
+          var tmpl =sn.templates.render(
+            catList.appendChild(document.createElement("li")),
+            "./html/templates/category/list.html",
+            category
+          );
+        });
+        let ce = node.do("template.loaded", {
+          cancelable: true,
+          bubbles: false,
+          detail: {}
+        });
+      })
+  }.bind(this))
+</script>

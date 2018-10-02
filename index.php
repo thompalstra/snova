@@ -12,89 +12,71 @@ if($_POST){
     <link href="./bundle.css" rel="stylesheet"/>
     <script src="./bundle.js" type="module"></script>
   </head>
-  <body data-loading="true">
-    <ul>
-      <li>item</li>
-      <li>item</li>
-      <li class="has-children">item
-        <ul>
-          <li>item</li>
-          <li>item</li>
-          <li>item</li>
-          <li>item</li>
-          <li>item</li>
-          <li>item</li>
-          <li>item</li>
-          <li>item</li>
-        </ul>
-      </li>
-      <li>item</li>
-      <li>item</li>
-      <li class="has-children">item
-        <ul>
-          <li>item</li>
-          <li>item</li>
-          <li>item</li>
-          <li>item</li>
-          <li>item</li>
-          <li>item</li>
-          <li>item</li>
-          <li>item</li>
-        </ul>
-      </li>
-      <li>item</li>
-      <li class="has-children">item
-        <ul>
-          <li>item</li>
-          <li>item</li>
-          <li>item</li>
-          <li>item</li>
-          <li>item</li>
-          <li>item</li>
-          <li>item</li>
-          <li>item</li>
-        </ul>
-      </li>
-    </ul>
-    <form id="form-form-1">
-      <input type="text" name="street" value="Neede" placeholder="street"/>
-      <input type="text" name="housenumber" value="33" placeholder="housenumber"/>
-      <input type="text" name="housenumberext" value="X" placeholder="housenumberext"/>
-      <input type="text" name="city" value="Amsterdam" placeholder="city"/>
-      <input type="text" name="zipcode" value="9999XX" placeholder="zipcode"/>
-      <select name="country" value="nl_NL" placeholder="Select">
-        <option value="nl_NL">Nederland</option>
-        <option value="en_UK">United Kingdom</option>
-        <option value="en_US">United States</option>
-        <option value="xx_XX">Other</option>
-      </select>
-      <div>
-
-      </div>
-      <div>
-        <label><input type="radio" name="gender" value="man"></input>male</label>
-        <label><input type="radio" name="gender" value="vrouw"></input>female</label>
-      </div>
-      <div>
-        <label><input type="checkbox" name="delivery_options[]" value="24h"></input>24h</label>
-        <label><input type="checkbox" name="delivery_options[]" value="express"></input>express</label>
-        <label><input type="checkbox" name="delivery_options[]" value="insure"></input>insure</label>
-      </div>
-    </form>
+  <body>
+    <app-view id="splash">
+      <h2>Loading...</h2>
+    </app-view>
   </body>
   <script>
     document.addEventListener("app.ready", ()=>{
+      window.app = {};
+      extend(app).with({
+        navigate: {
+          history: {
+            history: [],
+            push: function(state, url){
+              this.history.push({ state: state, url: url });
+            },
+            pop: function(){
+              return this.history.pop();
+            }
+          },
+          to: function(url, object){
+            return new Promise((res, rej)=>{
+              let view = document.createElement("app-view");
+              view.dataset.href = url.replace(/\//g, "-").replace(/\./g, "-");
+              let Template = sn.templates.render(view, url, object)
+                .then(()=>{
+                  this.history.push({
+                    view: view,
+                    url: url
+                  }, url);
+                  document.body.appendChild(view);
+                  res();
+                })
+            });
+          },
+          back: function(e){
+            let last = this.history.pop();
+            last.state.view.remove();
+          }
+        }
+      })
+
+      document.on("click", "a[data-navigate-to]", function(event){
+        event.preventDefault(); event.stopPropagation();
+        if(this.dataset.params){
+          params = JSON.parse(this.dataset.params);
+        } else {
+          params = {};
+        }
+        app.navigate.to(this.getAttribute("href"), params);
+      })
+      document.on("click", "a[data-navigate-back]", function(e){
+        event.preventDefault(); event.stopPropagation();
+        app.navigate.back();
+      })
+
       sn.templates.load([
-        "./html/templates/category/grid.html",
         "./html/templates/category/list.html",
-        "./html/templates/product/grid.html",
-        "./html/templates/product/list.html"
+        "./html/templates/product/list.html",
+        "./html/category/index.html",
+        "./html/category/view.html",
+        "./html/product/view.html",
+        "./html/home.html"
       ]).then(()=>{
-        document.on("click", "li", function(event){
-          console.log(this.siblings(".has-children"));
-          console.log(this.parents(".has-children"));
-        })
-        document.body.dataset.loading = false;
+        app.navigate.to("./html/home.html");
+        document.getElementById("splash").remove();
       });
     });
   </script>
