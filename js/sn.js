@@ -26,11 +26,13 @@ extend(Templates).with({
   load: function(uris){
     return new Promise((res, rej)=>{
       (function next(i){
+        let key = (Array.isArray(uris[i])) ? uris[i][0] : uris[i];
+        let url = (Array.isArray(uris[i])) ? uris[i][1] : uris[i];
         if(i < uris.length){
-          fetch(uris[i])
+          fetch(url)
             .then(res => res.text())
             .then(text => {
-              this.add(uris[i], text);
+              this.add(key, text);
               next.call(this, ++i);
             });
         } else {

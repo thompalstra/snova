@@ -68,8 +68,8 @@ if($_POST){
       })
 
       sn.templates.load([
-        "./html/templates/category/list.html",
-        "./html/templates/product/list.html",
+        ["category-list", "./html/templates/category/list.html"],
+        ["product-list", "./html/templates/product/list.html"],
         "./html/category/index.html",
         "./html/category/view.html",
         "./html/product/view.html",
